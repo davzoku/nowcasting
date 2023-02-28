@@ -1,0 +1,19 @@
+﻿Dependent,Name,Frequency,URL,API
+Y,"Gross Domestic Product, Year On Year Growth Rate",Q,https://tablebuilder.singstat.gov.sg/table/TS/M015631,https://tablebuilder.singstat.gov.sg/rowdata/488dd284-78f4-4755-cd32-08db0d55461d_M015631_1.json
+,Composite Leading Index (2015 = 100),Q,https://tablebuilder.singstat.gov.sg/table/TS/M240421,https://tablebuilder.singstat.gov.sg/rowdata/5cddb641-ff3c-4941-cd4d-08db0d55461d_M240421_1.json
+,Business Expectations Of The Manufacturing Sector - Forecast By Industry,Q,https://tablebuilder.singstat.gov.sg/table/TS/M250141,https://tablebuilder.singstat.gov.sg/rowdata/09b12018-a20d-46e2-9b3a-08db03306d11_M250141_1.json
+,"Business Expectations For The Services Sector - Operating Receipts Forecast For The Next Quarter, Weighted Percentages Of Up, Same, Down",Q,https://tablebuilder.singstat.gov.sg/table/TS/M250491,https://tablebuilder.singstat.gov.sg/rowdata/5b664265-0f9c-4475-9b40-08db03306d11_M250491_1.json
+,"Business Expectations For The Services Sector - General Business Outlook For The Next 6 Months, Weighted Percentages Of Up, Same, Down",Q,https://tablebuilder.singstat.gov.sg/table/TS/M250481,https://tablebuilder.singstat.gov.sg/rowdata/b386c615-80c0-4f13-9b3f-08db03306d11_M250481_1.json
+,"Domestic Wholesale Trade Index, (2017 = 100), In Chained Volume Terms",Q,https://tablebuilder.singstat.gov.sg/table/TS/M601951,https://tablebuilder.singstat.gov.sg/rowdata/d80557ef-f965-46e6-8420-08db12eee051_M601951_1.json
+,"Foreign Wholesale Trade Index, (2017 = 100), In Chained Volume Terms",Q,https://tablebuilder.singstat.gov.sg/table/TS/M601961,https://tablebuilder.singstat.gov.sg/rowdata/6010e63e-cf8a-45be-8422-08db12eee051_M601961_1.json
+,"Business Receipts Index For Services Industries, (2014=100)",Q,https://tablebuilder.singstat.gov.sg/table/TS/M602011,https://tablebuilder.singstat.gov.sg/rowdata/f6507b04-9211-4e4e-c7c0-08db1862f54e_M602011_1.json
+,"Food & Beverage Services Index, (2017 = 100), In Chained Volume Terms",M,https://tablebuilder.singstat.gov.sg/table/TS/M601881,https://tablebuilder.singstat.gov.sg/rowdata/670965c3-fe22-492f-8580-08db0593ad28_M601881_1.json
+,"Retail Sales Index, (2017 = 100), In Chained Volume Terms",M,https://tablebuilder.singstat.gov.sg/table/TS/M601871,https://tablebuilder.singstat.gov.sg/rowdata/8ea3388a-c9f5-49f1-857d-08db0593ad28_M601871_1.json
+,Tourism Receipts By Major Components (Year-To-Date),Q,https://tablebuilder.singstat.gov.sg/table/TS/M550371,https://tablebuilder.singstat.gov.sg/rowdata/a31ef4b3-7bb9-42eb-9b48-08db03306d11_M550371_1.json
+,Sea Cargo And Shipping Statistics (Total Cargo),M,https://tablebuilder.singstat.gov.sg/table/TS/M651101,https://tablebuilder.singstat.gov.sg/rowdata/fe262530-f52a-433e-b622-08db0e69b3cc_M651101_3.json
+,Air Cargo Tonnage,M,https://tablebuilder.singstat.gov.sg/table/TS/M651471,https://tablebuilder.singstat.gov.sg/rowdata/b18d178b-bc8e-4058-475b-08db04c93d2f_M651471_1.json
+,Domestic Exports By Commodity Division,M,https://tablebuilder.singstat.gov.sg/table/TS/M451041,https://tablebuilder.singstat.gov.sg/rowdata/bbd167aa-5384-4f50-07f7-08db107ede97_M451041_1.json
+,Merchandise Imports By Commodity Division,M,https://tablebuilder.singstat.gov.sg/table/TS/M451021,https://tablebuilder.singstat.gov.sg/rowdata/22f092d4-350f-4cb5-07f6-08db107ede97_M451021_1.json
+,STI ETF Price,D,https://investors.sgx.com/_security-types/etfs/ES3,https://api.sgx.com/securities/v1.1/charts/historic/etfs/code/ES3
+,M1 Money Supply,M,https://secure.mas.gov.sg/api/APIDESCPAGE.ASPX?RESOURCE_ID=2940f379-100d-4f28-986a-8aee84014929,https://eservices.mas.gov.sg/api/action/datastore/search.json?resource_id=2940f379-100d-4f28-986a-8aee84014929
+,Index Of Industrial Production (2019 = 100),M,https://tablebuilder.singstat.gov.sg/table/TS/M355271,https://tablebuilder.singstat.gov.sg/rowdata/5f5c99c0-0b3b-45e5-be0d-08db16241d1f_M355271_1.json
