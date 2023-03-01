@@ -14,6 +14,6 @@ Y,"Gross Domestic Product, Year On Year Growth Rate",Q,https://tablebuilder.sing
 ,Air Cargo Tonnage,M,https://tablebuilder.singstat.gov.sg/table/TS/M651471,https://tablebuilder.singstat.gov.sg/rowdata/b18d178b-bc8e-4058-475b-08db04c93d2f_M651471_1.json
 ,Domestic Exports By Commodity Division,M,https://tablebuilder.singstat.gov.sg/table/TS/M451041,https://tablebuilder.singstat.gov.sg/rowdata/bbd167aa-5384-4f50-07f7-08db107ede97_M451041_1.json
 ,Merchandise Imports By Commodity Division,M,https://tablebuilder.singstat.gov.sg/table/TS/M451021,https://tablebuilder.singstat.gov.sg/rowdata/22f092d4-350f-4cb5-07f6-08db107ede97_M451021_1.json
-,STI ETF Price,D,https://investors.sgx.com/_security-types/etfs/ES3,https://api.sgx.com/securities/v1.1/charts/historic/etfs/code/ES3
+,Straits Times Index (STI),D,https://www.sgx.com/indices/products/sti,https://api.sgx.com/indices/v1.0/charts/historic/pid/.STI/
 ,M1 Money Supply,M,https://secure.mas.gov.sg/api/APIDESCPAGE.ASPX?RESOURCE_ID=2940f379-100d-4f28-986a-8aee84014929,https://eservices.mas.gov.sg/api/action/datastore/search.json?resource_id=2940f379-100d-4f28-986a-8aee84014929
 ,Index Of Industrial Production (2019 = 100),M,https://tablebuilder.singstat.gov.sg/table/TS/M355271,https://tablebuilder.singstat.gov.sg/rowdata/5f5c99c0-0b3b-45e5-be0d-08db16241d1f_M355271_1.json
