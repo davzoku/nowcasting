@@ -14,7 +14,7 @@ Y,"Gross Domestic Product, Year On Year Growth Rate | GDP In Chained (2015) Doll
 ,Air Cargo Tonnage | Total Direct Tonnage (Tonne),M,https://tablebuilder.singstat.gov.sg/table/TS/M651471,https://tablebuilder.singstat.gov.sg/rowdata/ec290081-0fa8-4cd6-50c0-08db5c2d0d29_M650031_5.json
 ,Domestic Exports By Commodity Division | Total Domestic Exports,M,https://tablebuilder.singstat.gov.sg/table/TS/M451041,https://tablebuilder.singstat.gov.sg/rowdata/9f07e3a5-be3a-4aaa-bfa6-08db566ddf26_M451041_1.json
 ,Merchandise Imports By Commodity Division | Total Merchandise Imports,M,https://tablebuilder.singstat.gov.sg/table/TS/M451021,https://tablebuilder.singstat.gov.sg/rowdata/18123dd5-1988-49fe-bfb1-08db566ddf26_M451021_1.json
-,Straits Times Index (STI),D,https://www.sgx.com/indices/products/sti,https://api.sgx.com/indices/v1.0/charts/historic/pid/.STI/
+,Straits Times Index (STI),D,yfinance,^STI
 ,M1 Money Supply,M,https://secure.mas.gov.sg/api/APIDESCPAGE.ASPX?RESOURCE_ID=2940f379-100d-4f28-986a-8aee84014929,"https://eservices.mas.gov.sg/api/action/datastore/search.json?resource_id=2940f379-100d-4f28-986a-8aee84014929&fields=m1,end_of_month"
 ,Index Of Industrial Production (2019 = 100) | Total,M,https://tablebuilder.singstat.gov.sg/table/TS/M355271,https://tablebuilder.singstat.gov.sg/rowdata/398883f0-106b-41a6-8daa-08db5da66f36_M355271_1.json
 ,Domestic Exports Of Major Non-Oil Products | Total Electronic Products,M,https://tablebuilder.singstat.gov.sg/table/TS/M450981,https://tablebuilder.singstat.gov.sg/rowdata/7fca4ebe-eb19-4f52-bfb0-08db566ddf26_M450981_1.json
