@@ -1,24 +1,24 @@
 import datetime
 import requests
+from bs4 import BeautifulSoup
+import yfinance as yf
 import pandas as pd
 import numpy as np
-from statsmodels.tsa.stattools import adfuller
+import json
 
 #%% static data
-files = {'sources':'Data Sources.csv', 'final':'Data Cleaned.csv'}
+files = {'sources':'Data Sources.csv', 'final':'Data Cleaned.json'}
 
 #%% classes and functions
 #%%
 class Variables:
     def __init__(self, df):
-        self.dep = df[df['Dependent']=='Y']['Name'].tolist()
+        self.dep = df[df['Dependent']=='Y']['Name'].tolist()[0] # only 1 dependent var!
 
         self.indep = df[df['Dependent']!='Y']['Name'].tolist()
         self.indep = [i for i in self.indep if 'business expectations' not in i.lower()]
 
         self.freq = dict(zip(df['Name'],df['Frequency']))
-
-        self.non_stat = []
 
 #%% singapore department of statistics
 def get_singstat(url):
@@ -61,16 +61,22 @@ def get_mas(url, params={'limit':100,'offset':0}):
 
     return(data)
 
+#%% yfinance
+def get_yf(ticker, start_date='1900-01-01'):
+    data = yf.download(ticker, start=start_date)
+    close = dict(zip(data.index.date, data['Close']))
+    return(close)
+
 #%% load data sources and create dicts to store metadata of each source
+requests_funcs = {'mas':get_mas, 'sgx':get_sgx, 'singstat':get_singstat, 'yf':get_yf}
+
 sources = pd.read_csv(files['sources'], encoding='utf-8')
+for k in requests_funcs:
+    sources.loc[sources['URL'].str.contains(k)|sources['API'].str.contains(k), 'Source'] = k
+
 variables = Variables(sources)
 
-requests_funcs = {'mas':get_mas, 'sgx':get_sgx, 'singstat':get_singstat}
-apis = {'mas':[], 'sgx':[], 'singstat':[]}
-for k in apis.keys():
-    for i in zip(sources['Name'], sources['Frequency'], sources['API']):
-        if k in i[-1]:
-            apis[k].append({'Name':i[0], 'Frequency':i[1], 'API':i[2]})
+apis = {k:sources[sources['Source']==k][['Name','Frequency','API']].to_dict('records') for k in requests_funcs}
 
 #%% pull data
 ts_data = {}
@@ -78,75 +84,38 @@ for k,v in apis.items():
     for dim in v:
         ts_data[dim['Name']] = requests_funcs[k](dim['API'])
 
-#%% pass data into pandas series
-ts_pd = {}
-for k,v in apis.items():
-    for dim in v:
+#%% M1 money supply from MAS API stops at 2021-06. download post-2021-06 data using requests.
+# change date range if desired
+post_data = {'__VIEWSTATE':None,'__VIEWSTATEGENERATOR':None,'__EVENTVALIDATION':None,
+             'ctl00$ContentPlaceHolder1$StartYearDropDownList':'2021',
+             'ctl00$ContentPlaceHolder1$StartMonthDropDownList':'1',
+             'ctl00$ContentPlaceHolder1$EndYearDropDownList':'2023',
+             'ctl00$ContentPlaceHolder1$EndMonthDropDownList':'12',
+             'ctl00$ContentPlaceHolder1$FrequencyDropDownList':'M',
+             'ctl00$ContentPlaceHolder1$DownloadButton':'Download',
+             'ctl00$ContentPlaceHolder1$OptionsList$3':'on'} # M1
 
-        if dim['Frequency']=='Q':
-            periods = [p.split()[0]+p.split()[-1][::-1] for p in list(ts_data[dim['Name']])]
-            periods = pd.PeriodIndex(periods, freq=dim['Frequency'])
-            ts_pd[dim['Name']] = pd.Series(ts_data[dim['Name']].values(), index=periods)
+url = 'https://eservices.mas.gov.sg/statistics/msb-xml/Report.aspx?tableSetID=I&tableID=I.1'
+with requests.Session() as session:
+    response = session.get(url)
+    headers = {'Cookie':' '.join(f'{k}={v} ' for k, v in response.cookies.get_dict().items())}
+    bs_obj = BeautifulSoup(response.content, 'html.parser')
+    for k,v in post_data.items():
+        if v==None:
+            post_data[k] = bs_obj.find(id=k)['value']
 
-        elif dim['Frequency']=='M':
-            periods = pd.to_datetime(list(ts_data[dim['Name']])) + pd.tseries.offsets.MonthEnd(0)
-            ts_pd[dim['Name']] = pd.Series(ts_data[dim['Name']].values(), index=periods)
+    response = session.post(url=url, data=post_data, headers=headers)
 
-        elif dim['Frequency']=='D':
-            periods = pd.to_datetime(list(ts_data[dim['Name']]))
-            ts_pd[dim['Name']] = pd.Series(ts_data[dim['Name']].values(), index=periods).resample('M').last()
-            variables.freq[dim['Name']] = 'M' # update to 'M' since resampled
+add_m1_money = [i.split(',') for i in response.text.split('\n\n')[0].split('\n')][2:]
+add_m1_money = dict(zip([i[0] for i in add_m1_money], [i[1] for i in add_m1_money]))
+add_m1_money = {pd.to_datetime(k).strftime('%Y-%m'):float(v) for k,v in add_m1_money.items()}
 
-        # start all series from first valid index
-        ts_pd[dim['Name']] = ts_pd[dim['Name']][ts_pd[dim['Name']].first_valid_index():]
+ts_data['M1 Money Supply'].update(add_m1_money)
 
-#%% check and ensure series' stationarity
-# if p-value >0.05, variable is non-stationary
-for i in variables.indep:
-    print(i)
-    # if unit root, take % yoy growth (which also removes seasonality)
-    if adfuller(ts_pd[i])[1]>0.05:
+#%% change key datatypes to string
+for k in ts_data:
+    ts_data[k] = {str(v):dim for v,dim in ts_data[k].items()}
 
-        if variables.freq[i]=='M':
-            ts_pd[i] = ts_pd[i].pct_change(periods=12) * 100
-        elif variables.freq[i]=='Q':
-            ts_pd[i] = ts_pd[i].pct_change(periods=4) * 100
-        print('Non-stationary', end='\n\n')
-        variables.non_stat.append(i)
-
-    else:
-        print('Stationary', end='\n\n')
-
-#%% resample all series and pass into dataframe
-'''
-order adhered to as defined by statsmodels docs for dynamic factor modelling:
-[https://www.statsmodels.org/dev/generated/statsmodels.tsa.statespace.dynamic_factor_mq.DynamicFactorMQ.html]
-- dependent variable leftmost
-- monthly data in the first columns
-- quarterly data in the last columns
-'''
-# resample all series to monthly and start from first valid index
-for series, freq in zip(sources['Name'], sources['Frequency']):
-
-    if freq=='Q':
-        ts_pd[series] = ts_pd[series].resample('M', convention='end').asfreq()
-        ts_pd[series].index = pd.to_datetime(ts_pd[series].index.strftime('%Y-%m-%d'))
-
-    if ts_pd[series].index[0]!=ts_pd[series].first_valid_index():
-        ts_pd[series] = ts_pd[series][ts_pd[series].first_valid_index():]
-
-# pass all series into dataframe, start dataframe from first year of GDP growth data
-ts_df = pd.DataFrame(ts_pd)
-ts_df = ts_df.loc[ts_df.index.year>=ts_df.loc[:,variables.dep[0]].first_valid_index().year]
-
-# rearrange columns in correct order for factor modelling as explained in markdown above
-ts_df = ts_df[variables.dep+\
-              [k for k,v in variables.freq.items() if v=='M' and k!=variables.dep[0]]+\
-              [k for k,v in variables.freq.items() if v=='Q' and k!=variables.dep[0]]]
-
-ts_df.index.name = 'Period'
-ts_df = ts_df.reset_index()
-ts_df['Period'] = ts_df['Period'].dt.date
-
-#%% export
-ts_df.to_csv(files['final'], encoding='utf-8', index=False)
+#%% export to json
+with open(files['final'], 'w', encoding='utf-8') as f:
+    f.write(json.dumps(ts_data, ensure_ascii=False, indent=4, sort_keys=True, default=str))
