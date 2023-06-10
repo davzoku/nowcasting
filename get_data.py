@@ -1,4 +1,5 @@
 import datetime
+import time
 import requests
 from bs4 import BeautifulSoup
 import yfinance as yf
@@ -82,29 +83,43 @@ apis = {k:sources[sources['Source']==k][['Name','Frequency','API']].to_dict('rec
 ts_data = {}
 for k,v in apis.items():
     for dim in v:
+        print(f"[{dim['Name']}]", end=' ')
         ts_data[dim['Name']] = requests_funcs[k](dim['API'])
+        print('done')
 
 #%% M1 money supply from MAS API stops at 2021-06. download post-2021-06 data using requests.
-# change date range if desired
-post_data = {'__VIEWSTATE':None,'__VIEWSTATEGENERATOR':None,'__EVENTVALIDATION':None,
-             'ctl00$ContentPlaceHolder1$StartYearDropDownList':'2021',
-             'ctl00$ContentPlaceHolder1$StartMonthDropDownList':'1',
-             'ctl00$ContentPlaceHolder1$EndYearDropDownList':'2023',
-             'ctl00$ContentPlaceHolder1$EndMonthDropDownList':'12',
-             'ctl00$ContentPlaceHolder1$FrequencyDropDownList':'M',
-             'ctl00$ContentPlaceHolder1$DownloadButton':'Download',
-             'ctl00$ContentPlaceHolder1$OptionsList$3':'on'} # M1
+m1_params = {'url':'https://eservices.mas.gov.sg/statistics/msb-xml/Report.aspx?tableSetID=I&tableID=I.1',
+             'headers':{'Content-Type':'application/x-www-form-urlencoded'},
+             'cookies':{},
+             'post':{'__VIEWSTATE':None,'__VIEWSTATEGENERATOR':None,'__EVENTVALIDATION':None,
+                     '__EVENTTARGET':'','__EVENTARGUMENT':'',
+                     'ctl00$ContentPlaceHolder1$StartYearDropDownList':'2021',
+                     'ctl00$ContentPlaceHolder1$StartMonthDropDownList':'1',
+                     'ctl00$ContentPlaceHolder1$EndYearDropDownList':'2023',
+                     'ctl00$ContentPlaceHolder1$EndMonthDropDownList':'12',
+                     'ctl00$ContentPlaceHolder1$FrequencyDropDownList':'M',
+                     'ctl00$ContentPlaceHolder1$DownloadButton':'Download',
+                     'ctl00$ContentPlaceHolder1$OptionsList$3':'on'}} # change dates if necessary; option 3 = M1
 
-url = 'https://eservices.mas.gov.sg/statistics/msb-xml/Report.aspx?tableSetID=I&tableID=I.1'
 with requests.Session() as session:
-    response = session.get(url)
-    headers = {'Cookie':' '.join(f'{k}={v} ' for k, v in response.cookies.get_dict().items())}
+    response = session.get(m1_params['url'])
+    m1_params['cookies'].update(response.cookies.get_dict())
+    m1_params['headers'].update({'Cookie':' '.join(f'{k}={v} ' for k, v in m1_params['cookies'].items())})
     bs_obj = BeautifulSoup(response.content, 'html.parser')
-    for k,v in post_data.items():
+    for k,v in m1_params['post'].items():
         if v==None:
-            post_data[k] = bs_obj.find(id=k)['value']
+            m1_params['post'][k] = bs_obj.find(id=k)['value']
 
-    response = session.post(url=url, data=post_data, headers=headers)
+    # sometimes fails for unknown reasons. try until success.
+    k = 1
+    print('[M1 Money Supply, MAS website]', f"Attempt {k}", sep='\n')
+    response = session.post(url=m1_params['url'], data=m1_params['post'], headers=m1_params['headers'])
+    while not 'money supply' in response.text.lower():
+        k+=1
+        print(f"Attempt {k}")
+        time.sleep(1)
+        response = session.post(url=m1_params['url'], data=m1_params['post'], headers=m1_params['headers'])
+    print('done')
 
 add_m1_money = [i.split(',') for i in response.text.split('\n\n')[0].split('\n')][2:]
 add_m1_money = dict(zip([i[0] for i in add_m1_money], [i[1] for i in add_m1_money]))
@@ -117,5 +132,5 @@ for k in ts_data:
     ts_data[k] = {str(v):dim for v,dim in ts_data[k].items()}
 
 #%% export to json
-with open(files['final'], 'w', encoding='utf-8') as f:
-    f.write(json.dumps(ts_data, ensure_ascii=False, indent=4, sort_keys=True, default=str))
+with open(files['final'], 'w', encoding='utf-8') as v:
+    v.write(json.dumps(ts_data, ensure_ascii=False, indent=4, sort_keys=True, default=str))
